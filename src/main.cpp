@@ -18,8 +18,8 @@ void doWhatChildDo();
 vector<pair<int, char>> insertionSort(vector<pair<int, char>> word);
 void saveOrdenedWord(vector<pair<int, char>> word);
 void finishProgram();
+void countOrdened();
 void writeBegin(FILE *fp);
-void writeMiddle(FILE *fp);
 void writeEnd(FILE *fp);
 void savedWords(vector<pair<int,char>> word);
 
@@ -74,15 +74,18 @@ void readWords(FILE * file) {
 }
 
 void randomChacarter(vector<pair<int,char>> word) {
-    random_shuffle(word.begin(), word.end());
-    savedWords(word);
+    if(word.size() > 0){
+        random_shuffle(word.begin(), word.end());
+        savedWords(word);
+    }
 }
 
 void savedWords(vector<pair<int,char>> word) {
     saved_words.push_back(word);
 }
+
 void getInit() {
-    cout << "Enter time for program execution: ";
+    cout << "\nEnter time for program execution: ";
     cin >> time_execution;
 
     cout << "Enter start position for programa execution: ";
@@ -92,6 +95,9 @@ void getInit() {
 }
 
 void startProgram() {
+    remove("../doc/ordened_words.txt");
+    remove("../doc/disordered_words.txt");
+
     pid_t child = fork();
 
     if(child == 0) {
@@ -131,30 +137,56 @@ vector<pair<int, char>> insertionSort(vector<pair<int, char>> word) {
 }
 
 void saveOrdenedWord(vector<pair<int, char>> word) {
-    FILE *fp = fopen("../doc/ordened_words.txt", "a+");
+    
+    if(word.size() > 0) {
+        FILE *fp = fopen("../doc/ordened_words.txt", "a+");
 
-    fprintf(fp, "*");
-    for(unsigned int i = 0; i < word.size(); i++) {
-        fprintf(fp, "%c", word[i].second);
+        fprintf(fp, "*");
+        for(unsigned int i = 0; i < word.size(); i++) {
+            fprintf(fp, "%c", word[i].second);
+        }
+        fprintf(fp, "*\n");
+
+        fclose(fp);
     }
-    fprintf(fp, "*\n");
-
-    fclose(fp);
 }
 
 void finishProgram() {
-    FILE *fp = fopen("../doc/new.txt", "a+");
+    countOrdened();
+
+    FILE *fp = fopen("../doc/disordered_words.txt", "a+");
 
     writeBegin(fp);
-    writeMiddle(fp);
     writeEnd(fp);
 
     fclose(fp);
 
-    remove("../doc/ordened_words.txt");
-    rename("../doc/new.txt", "../doc/ordened_words.txt");
+    // remove("../doc/ordened_words.txt");
+    // rename("../doc/new.txt", "../doc/ordened_words.txt");
 
-    cout << "\n\n" << counter - 1 << " words were ordened!\n\n";
+    if(counter > 0) {
+        cout << "\n" << counter << " words were ordened!\n\n";
+        cout << "Open '..doc/ordened_words.txt' to see the ordened words.\n";
+        cout << "Open '..doc/disordered_words.txt' to see the disordered words.\n\n";
+    } else {
+        cout << "\nOps... no words were ordened.\n\n";
+        cout << "Open '..doc/disordered_words.txt' to see all disordered words.\n\n";
+        remove("../doc/ordened_words.txt");
+    }
+}
+
+void countOrdened() {
+    FILE *wd = fopen("../doc/ordened_words.txt", "a+");
+    char a;
+
+    while(!feof(wd)) {
+        fscanf(wd, "%c", &a);
+
+        if(a == '\n')
+            counter++;
+    }
+
+    fclose(wd);
 }
 
 void writeBegin(FILE *fp) {
@@ -166,23 +198,12 @@ void writeBegin(FILE *fp) {
     }
 }
 
-void writeMiddle(FILE *fp) {
-    FILE *wd = fopen("../doc/ordened_words.txt", "r");
-    char a;
-
-    while(!feof(wd)) {
-        fscanf(wd, "%c", &a);
-        fprintf(fp, "%c", a);
-
-        if(a == '\n')
-            counter++;
-    }
-
-    fclose(wd);
-}
-
 void writeEnd(FILE *fp) {
-    for(unsigned int i = position + counter - 1; i < saved_words.size(); i++) {
+
+    if(counter > 0)
+        counter --;
+
+    for(unsigned int i = position + counter; i < saved_words.size(); i++) {
         for(unsigned int j = 0; j < saved_words[i].size(); j++){
             fprintf(fp, "%c", saved_words[i][j].second);
         }
