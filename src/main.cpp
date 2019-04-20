@@ -25,6 +25,7 @@ void saveDisorderedWords();
 void writeBegin(FILE *fp);
 void writeEnd(FILE *fp);
 void savedWords(vector<pair<int,char>> word);
+void countingSort(vector<pair<int, char> > word);
 
 void createHTMLFiles();
 void createOrdenedFile();
@@ -302,3 +303,27 @@ void closeHTML(FILE *fp) {
     fclose(fp);
 }
 
+void countingSort(vector<pair<int, char> > word) {
+    vector<pair<int, char> > ordened_word(word.size());
+    vector<int> counting_vetor(word.size(),0);
+
+    for(unsigned int i = 0; i <= word.size(); i++) {
+        ++counting_vetor[word[i].first];
+    }
+
+    for(unsigned int i = 0; i < counting_vetor.size(); i++) {
+        int aux = counting_vetor[i] + counting_vetor[i+1];
+        counting_vetor[i+1] = aux;
+    }
+
+    for(int i = word.size(); i >= 0; i--) {
+        int position = counting_vetor[word[i].first];
+        ordened_word[position] = word[i];
+    }
+
+
+    for(unsigned int i = 0; i <= ordened_word.size(); i++) {
+        cout << ordened_word[i].second<< endl;
+    }
+
+}
