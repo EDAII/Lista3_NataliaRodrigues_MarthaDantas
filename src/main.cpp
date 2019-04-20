@@ -15,8 +15,8 @@ FILE * openFile(FILE * file);
 void readWords(FILE * file);
 void randomChacarter(vector<pair<int,char>> word);
 void getInit();
-void startProgram();
-void doWhatChildDo();
+void startProgram(int algorithm);
+void doWhatChildDo(int algorithm);
 vector<pair<int, char>> insertionSort(vector<pair<int, char>> word);
 void saveOrdenedWord(vector<pair<int, char>> word);
 void finishProgram();
@@ -25,13 +25,14 @@ void saveDisorderedWords();
 void writeBegin(FILE *fp);
 void writeEnd(FILE *fp);
 void savedWords(vector<pair<int,char>> word);
-void countingSort(vector<pair<int, char> > word);
+vector<pair<int, char>>  countingSort(vector<pair<int, char> > word);
 
 void createHTMLFiles();
 void createOrdenedFile();
 void createDisorderedFile();
 FILE *generateHTML(string t);
 void closeHTML(FILE *fp);
+int chooseSortAgorithm();
 
 
 vector<vector<pair<int, char>>> saved_words;
@@ -102,17 +103,17 @@ void getInit() {
     cout << "Enter start position for programa execution: ";
     cin >> position;
 
-    startProgram();
+    startProgram(chooseSortAgorithm());
 }
 
-void startProgram() {
+void startProgram(int algorithm) {
     remove("../doc/ordened_words.txt");
     remove("../doc/disordered_words.txt");
 
     pid_t child = fork();
 
     if(child == 0) {
-        doWhatChildDo();
+        doWhatChildDo(algorithm);
     }
     else {
         sleep(time_execution);
@@ -121,9 +122,15 @@ void startProgram() {
     }
 }
 
-void doWhatChildDo() {
+void doWhatChildDo(int algorithm) {
     for(unsigned int i = position; i < saved_words.size(); i++) {
-        saveOrdenedWord(insertionSort(saved_words[i]));
+        if(algorithm == 1) {
+            saveOrdenedWord(insertionSort(saved_words[i]));
+        }
+        else if (algorithm == 2) {
+            saveOrdenedWord(countingSort(saved_words[i]));  
+        }
+        
     }
 }
 
@@ -303,7 +310,7 @@ void closeHTML(FILE *fp) {
     fclose(fp);
 }
 
-void countingSort(vector<pair<int, char> > word) {
+vector<pair<int, char>> countingSort(vector<pair<int, char> > word) {
     vector<pair<int, char> > ordened_word(word.size());
     vector<int> counting_vetor(word.size(),0);
 
@@ -312,18 +319,23 @@ void countingSort(vector<pair<int, char> > word) {
     }
 
     for(unsigned int i = 0; i < counting_vetor.size(); i++) {
-        int aux = counting_vetor[i] + counting_vetor[i+1];
-        counting_vetor[i+1] = aux;
-    }
+        counting_vetor[i] += counting_vetor[i-1];
+    } 
 
     for(int i = word.size(); i >= 0; i--) {
         int position = counting_vetor[word[i].first];
         ordened_word[position] = word[i];
     }
 
+    return ordened_word;
+}
 
-    for(unsigned int i = 0; i <= ordened_word.size(); i++) {
-        cout << ordened_word[i].second<< endl;
-    }
+int chooseSortAgorithm() {
+    int input;
 
+    cout << "1 - Insertin Sort: " << "\n" << "2 - Counting Sort"<< endl;
+    cout << "Escolha o algoritmo de ordenação:" << endl;
+    cin >> input;
+
+    return input;
 }
