@@ -6,6 +6,8 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <fstream>
+#include <string>
+#include <cstring>
 
 using namespace std;
 
@@ -19,9 +21,17 @@ vector<pair<int, char>> insertionSort(vector<pair<int, char>> word);
 void saveOrdenedWord(vector<pair<int, char>> word);
 void finishProgram();
 void countOrdened();
+void saveDisorderedWords();
 void writeBegin(FILE *fp);
 void writeEnd(FILE *fp);
 void savedWords(vector<pair<int,char>> word);
+
+void createHTMLFiles();
+void createOrdenedFile();
+void createDisorderedFile();
+FILE *generateHTML(string t);
+void closeHTML(FILE *fp);
+
 
 vector<vector<pair<int, char>>> saved_words;
 float time_execution;
@@ -141,11 +151,10 @@ void saveOrdenedWord(vector<pair<int, char>> word) {
     if(word.size() > 0) {
         FILE *fp = fopen("../doc/ordened_words.txt", "a+");
 
-        fprintf(fp, "*");
         for(unsigned int i = 0; i < word.size(); i++) {
             fprintf(fp, "%c", word[i].second);
         }
-        fprintf(fp, "*\n");
+        fprintf(fp, "\n");
 
         fclose(fp);
     }
@@ -153,25 +162,17 @@ void saveOrdenedWord(vector<pair<int, char>> word) {
 
 void finishProgram() {
     countOrdened();
-
-    FILE *fp = fopen("../doc/disordered_words.txt", "a+");
-
-    writeBegin(fp);
-    writeEnd(fp);
-
-    fclose(fp);
-
-    // remove("../doc/ordened_words.txt");
-    // rename("../doc/new.txt", "../doc/ordened_words.txt");
+    saveDisorderedWords();
+    createHTMLFiles();
 
     if(counter > 0) {
         cout << "\n" << counter << " words were ordened!\n\n";
-        cout << "Open '..doc/ordened_words.txt' to see the ordened words.\n";
-        cout << "Open '..doc/disordered_words.txt' to see the disordered words.\n\n";
+        cout << "Open '..doc/ordened_words.html' on your browser to see the ordened words.\n";
+        cout << "Open '..doc/disordered_words.html' on your browser to see the disordered words.\n\n";
     } else {
         cout << "\nOps... no words were ordened.\n\n";
-        cout << "Open '..doc/disordered_words.txt' to see all disordered words.\n\n";
-        remove("../doc/ordened_words.txt");
+        cout << "Open '..doc/disordered_words.html' on your browser to see all disordered words.\n\n";
+        remove("../doc/ordened_words.html");
     }
 }
 
@@ -187,6 +188,15 @@ void countOrdened() {
     }
 
     fclose(wd);
+}
+
+void saveDisorderedWords() {
+    FILE *fp = fopen("../doc/disordered_words.txt", "a+");
+
+    writeBegin(fp);
+    writeEnd(fp);
+
+    fclose(fp);
 }
 
 void writeBegin(FILE *fp) {
@@ -209,5 +219,86 @@ void writeEnd(FILE *fp) {
         }
         fprintf(fp, "\n");
     }
+}
+
+void createHTMLFiles() {
+    createOrdenedFile();
+    createDisorderedFile();
+}
+
+void createOrdenedFile() {
+    FILE *fp = generateHTML("ordened_words");
+    FILE *ord = fopen("../doc/ordened_words.txt", "r");
+    char a;
+
+    fprintf(fp, "<p style=\"color:green\">");
+    while(!feof(ord)) {
+        fscanf(ord, "%c", &a);
+
+        if(a != '\n'){
+            fprintf(fp, "%c", a);
+        }
+        else {
+            fprintf(fp, "</p>\n");
+            fprintf(fp, "<p style=\"color:green\">");
+        }
+    }
+    fprintf(fp, "</p>\n");
+
+    closeHTML(fp);
+    fclose(ord);
+
+    remove("../doc/ordened_words.txt");
+}
+
+void createDisorderedFile() {
+    FILE *fp = generateHTML("disordered_words");
+    FILE *dis = fopen("../doc/disordered_words.txt", "r");
+    char a;
+
+    fprintf(fp, "<p style=\"color:red\">");
+    while(!feof(dis)) {
+        fscanf(dis, "%c", &a);
+
+        if(a != '\n'){
+            fprintf(fp, "%c", a);
+        }
+        else {
+            fprintf(fp, "</p>\n");
+            fprintf(fp, "<p style=\"color:red\">");
+        }
+    }
+    fprintf(fp, "</p>\n");
+
+    closeHTML(fp);
+    fclose(dis);
+
+    remove("../doc/disordered_words.txt");
+}
+
+FILE *generateHTML(string t) {
+    string n = "../doc/" + t + ".html";
+
+    char fileName[n.size() + 1];
+    strcpy(fileName, n.c_str());
+
+    char title[t.size() + 1];
+	strcpy(title, t.c_str());
+
+    FILE *fp = fopen(fileName, "w+");
+
+    fprintf(fp, "<!DOCTYPE html>\n");
+    fprintf(fp, "<html>\n<head>\n");
+    fprintf(fp, "<title>%s</title>\n", title);
+    fprintf(fp, "</head>\n</html>\n");
+
+    fprintf(fp, "\n<body>\n");
+
+    return fp;
+}
+
+void closeHTML(FILE *fp) {
+    fprintf(fp, "\n</body>\n");
+    fclose(fp);
 }
 
