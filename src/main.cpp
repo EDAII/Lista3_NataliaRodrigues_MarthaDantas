@@ -312,14 +312,16 @@ void closeHTML(FILE *fp) {
 
 vector<pair<int, char>> countingSort(vector<pair<int, char> > word) {
     vector<pair<int, char> > ordened_word(word.size());
-    vector<int> counting_vetor(word.size(),0);
+    vector<int> counting_vetor(word.size()+1,0);
 
     for(unsigned int i = 0; i <= word.size(); i++) {
-        ++counting_vetor[word[i].first];
+       ++counting_vetor[word[i].first];
     }
 
-    for(unsigned int i = 0; i < counting_vetor.size(); i++) {
-        counting_vetor[i] += counting_vetor[i-1];
+    for(unsigned int i = 0; i < word.size(); i++) {
+        int aux;
+        aux = counting_vetor[i] + counting_vetor[i+1];
+        counting_vetor[i+1] = aux;
     } 
 
     for(int i = word.size(); i >= 0; i--) {
