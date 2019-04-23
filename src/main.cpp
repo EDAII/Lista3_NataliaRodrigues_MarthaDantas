@@ -296,9 +296,10 @@ FILE *generateHTML(string t) {
     FILE *fp = fopen(fileName, "w+");
 
     fprintf(fp, "<!DOCTYPE html>\n");
+
     fprintf(fp, "<html>\n<head>\n");
     fprintf(fp, "<title>%s</title>\n", title);
-    fprintf(fp, "</head>\n</html>\n");
+    fprintf(fp, "</head>\n");
 
     fprintf(fp, "\n<body>\n");
 
@@ -306,27 +307,25 @@ FILE *generateHTML(string t) {
 }
 
 void closeHTML(FILE *fp) {
-    fprintf(fp, "\n</body>\n");
+    fprintf(fp, "\n</body>\n</html>\n");
     fclose(fp);
 }
 
-vector<pair<int, char>> countingSort(vector<pair<int, char> > word) {
-    vector<pair<int, char> > ordened_word(word.size());
-    vector<int> counting_vetor(word.size()+1,0);
-
-    for(unsigned int i = 0; i <= word.size(); i++) {
-       ++counting_vetor[word[i].first];
-    }
+vector<pair<int, char>> countingSort(vector<pair<int, char>> word) {
+    vector<pair<int, char>> ordened_word(word.size());
+    vector<int> counting_vetor((word.size()+1),0);
 
     for(unsigned int i = 0; i < word.size(); i++) {
-        int aux;
-        aux = counting_vetor[i] + counting_vetor[i+1];
-        counting_vetor[i+1] = aux;
+        ++counting_vetor[word[i].first];
+    }
+
+    for(unsigned int i = 1; i <= word.size(); i++) {
+        counting_vetor[i] += counting_vetor[i - 1];
     } 
 
-    for(int i = word.size(); i >= 0; i--) {
-        int position = counting_vetor[word[i].first];
-        ordened_word[position] = word[i];
+    for(int i = word.size() - 1; i >= 0; i--) {
+        ordened_word[counting_vetor[word[i].first] - 1] = word[i];
+        --counting_vetor[word[i].first];
     }
 
     return ordened_word;
