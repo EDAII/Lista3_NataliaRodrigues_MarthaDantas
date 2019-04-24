@@ -303,7 +303,8 @@ void createOrdenedFile(string directory, string filename) {
     FILE *ord = fopen(filename.c_str(), "r");
     char a;
 
-    fprintf(fp, "<p style=\"color:green\">");
+    fprintf(fp, "<ul class=\"list-group\">\n");
+    fprintf(fp, "<li class=\"list-group-item list-group-item-success\">\n");
     while(!feof(ord)) {
         fscanf(ord, "%c", &a);
 
@@ -311,11 +312,12 @@ void createOrdenedFile(string directory, string filename) {
             fprintf(fp, "%c", a);
         }
         else {
-            fprintf(fp, "</p>\n");
-            fprintf(fp, "<p style=\"color:green\">");
+            fprintf(fp, "</li>\n");
+            fprintf(fp, "<li class=\"list-group-item list-group-item-success\">\n");
         }
     }
-    fprintf(fp, "</p>\n");
+    fprintf(fp, "</li>\n");
+    fprintf(fp, "</ul>\n");
 
     closeHTML(fp);
     fclose(ord);
@@ -328,7 +330,8 @@ void createDisorderedFile(string directory, string filename) {
     FILE *dis = fopen(filename.c_str(), "r");
     char a;
 
-    fprintf(fp, "<p style=\"color:red\">");
+    fprintf(fp, "<ul class=\"list-group\">\n");
+    fprintf(fp, "<li class=\"list-group-item list-group-item-danger\">\n");
     while(!feof(dis)) {
         fscanf(dis, "%c", &a);
 
@@ -336,11 +339,12 @@ void createDisorderedFile(string directory, string filename) {
             fprintf(fp, "%c", a);
         }
         else {
-            fprintf(fp, "</p>\n");
-            fprintf(fp, "<p style=\"color:red\">");
+            fprintf(fp, "</li>\n");
+            fprintf(fp, "<li class=\"list-group-item list-group-item-danger\">\n");
         }
     }
-    fprintf(fp, "</p>\n");
+    fprintf(fp, "</li>\n");
+    fprintf(fp, "</ul>\n");
 
     closeHTML(fp);
     fclose(dis);
@@ -357,8 +361,11 @@ FILE *generateHTML(string t) {
 
     fprintf(fp, "<html>\n<head>\n");
     fprintf(fp, "<title>%s</title>\n", t.c_str());
+    fprintf(fp, "<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n");
+    fprintf(fp, "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css\">\n");
+    fprintf(fp, "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js\"></script>\n");
+    fprintf(fp, "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js\"></script>\n");
     fprintf(fp, "</head>\n");
-
     fprintf(fp, "\n<body>\n");
 
     return fp;
